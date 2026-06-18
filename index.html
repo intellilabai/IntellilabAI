@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliLab AI - Clinical Panel Checker</title>
+    <style>
+        :root {
+            --bg-main: #0c0c0e;
+            --bg-container: #16161a;
+            --bg-input: #1f1f24;
+            --border-color: #2a2a32;
+            --text-primary: #f1f1f4;
+            --text-secondary: #9b9ba6;
+            --brand-blue: #4ea8de;
+            --brand-purple: #7209b7;
+            --accent-green: #28a745;
+            --badge-normal-bg: #132d1b;
+            --badge-normal-text: #82e0aa;
+            --badge-abnormal-bg: #3c151a;
+            --badge-abnormal-text: #f1948a;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 30px 15px; 
+            background-color: var(--bg-main); 
+            color: var(--text-primary); 
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: var(--bg-container); 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6); 
+            border: 1px solid var(--border-color); 
+        }
+
+        /* Header Styling matching the image banner */
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h2 { 
+            color: var(--brand-blue); 
+            margin: 0 0 8px 0; 
+            font-size: 28px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .subtitle { 
+            color: var(--text-secondary); 
+            font-size: 14px; 
+        }
+
+        /* Modules styled like dashboard cards */
+        .dashboard-card { 
+            background: var(--bg-input); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            border: 1px solid var(--border-color);
+        }
+
+        .card-label {
+            font-weight: bold; 
+            color: var(--brand-blue);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .gender-selector select { 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color); 
+            background: var(--bg-main); 
+            color: #fff; 
+            font-size: 14px; 
+            width: 160px; 
+            cursor: pointer; 
+            outline: none;
+        }
+
+        /* File Upload Module Styling */
+        .file-upload-row {
+            display: flex; 
+            gap: 15px; 
+            align-items: center; 
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        input[type="file"] {
+            background: var(--bg-main);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+            flex-grow: 1;
+        }
+
+        /* Category Header Divider bands */
+        .category-title { 
+            background: linear-gradient(90deg, var(--brand-purple), var(--brand-blue)); 
+            color: white; 
+            padding: 10px 16px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            margin-top: 35px; 
+            margin-bottom: 15px; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase;
+        }
+
+        /* Form Row Layout */
+        .param-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 14px; 
+            border-bottom: 1px solid #222226; 
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .param-row:hover { 
+            background-color: var(--bg-input); 
+        }
+
+        .param-info { 
+            flex: 2; 
+        }
+
+        .param-name { 
+            font-weight: 600; 
+            font-size: 14px; 
+            color: #fff; 
+        }
+
+        .param-range { 
+            font-size: 11px; 
+            color: var(--text-secondary); 
+            margin-top: 3px; 
+        }
+
+        .param-input-container { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; 
+            gap: 12px;
+        }
+
+        .param-input-container input, 
+        .param-input-container select { 
+            width: 120px; 
+            padding: 8px; 
+            border: 1px solid var(--border-color); 
+            background: var(--bg-main); 
+            color: #fff; 
+            border-radius: 6px; 
+            text-align: center; 
+            font-size: 13px; 
+            outline: none;
+        }
+
+        .param-input-container input:focus {
+            border-color: var(--brand-blue);
+        }
+
+        /* Badges matching Mockup text styles */
+        .status-badge { 
+            display: inline-block; 
+            width: 95px; 
+            padding: 6px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-align: center; 
+            display: none; 
+        }
+
+        .normal-badge { 
+            background-color: var(--badge-normal-bg); 
+            color: var(--badge-normal-text); 
+            border: 1px solid #1e5c31; 
+            display: inline-block; 
+        }
+
+        .abnormal-badge { 
+            background-color: var(--badge-abnormal-bg); 
+            color: var(--badge-abnormal-text); 
+            border: 1px solid #78262f; 
+            display: inline-block; 
+        }
+
+        /* Action Buttons Layout */
+        .action-container { 
+            margin-top: 40px; 
+            text-align: center; 
+            padding-top: 25px; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            align-items: center; 
+        }
+
+        .btn-group { 
+            display: flex; 
+            gap: 15px; 
+        }
+
+        button { 
+            padding: 12px 28px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: bold; 
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-analyze { background: var(--brand-purple); color: white; }
+        .btn-clear { background: #2e2e36; color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-upload { background: var(--accent-green); color: white; padding: 8px 16px; font-size: 13px; }
+
+        .summary-box { 
+            width: 100%; 
+            max-width: 600px; 
+            padding: 15px; 
+            border-radius: 6px; 
+            display: none; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+
+        /* AI Report Container design directly mimicking "Modulo: Informe" */
+        .ai-report-container { 
+            margin-top: 30px; 
+            padding: 24px; 
+            background-color: var(--bg-input); 
+            border-radius: 8px; 
+            border: 1px solid var(--brand-blue); 
+            display: none; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
+
+        .ai-title { 
+            color: var(--brand-blue); 
+            font-size: 16px; 
+            font-weight: bold; 
+            margin-bottom: 14px; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .ai-content { 
+            font-size: 13.5px; 
+            color: var(--text-primary); 
+            line-height: 1.7; 
+            white-space: pre-line; 
+            text-align: left; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-section">
+        <h2>🔬 IntelliLab AI</h2>
+        <div class="subtitle">Platform for clinical laboratory verification, analysis, and data extraction.</div>
+    </div>
+
+    <div class="dashboard-card gender-selector">
+        <div class="card-label">👤 Patient Biological Profile</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <label for="gender" style="font-size: 14px; color: var(--text-secondary);">Biological Gender:</label>
+            <select id="gender" onchange="handleGenderChange()">
+                <option value="woman">Woman</option>
+                <option value="man" selected>Man</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-label">📋 Autofill via Lab Document (Image/PDF)</div>
+        <div class="file-upload-row">
+            <input type="file" id="labDocumentInput" accept="image/*,.pdf">
+            <button id="btnUpload" class="btn-upload" onclick="processLabDocument()">Extract Data</button>
+        </div>
+        <div id="uploadStatus" style="font-size: 12px; color: var(--brand-blue); margin-top: 10px; display: none; font-style: italic;">Processing document...</div>
+    </div>
+
+    <div id="dynamicForm"></div>
+
+    <div class="action-container">
+        <div class="btn-group">
+            <button class="btn-analyze" onclick="evaluateAllValues()">Analyze All Results</button>
+            <button class="btn-clear" onclick="clearAllFields()">Clear All Fields</button>
+        </div>
+        <div id="overallSummary" class="summary-box"></div>
+        
+        <div id="aiReportBox" class="ai-report-container">
+            <div class="ai-title">🤖 IntelliLab AI Clinical Insights</div>
+            <div id="aiContent" class="ai-content">Analyzing clinical data...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_KEY = "AQ.Ab8RN6IIsR4MhJdFx84odPCgqrTbp2-q8M4g96LerOSeIGR4dA"; 
+
+    const databaseString = `[Hematology]
+hemoglobin|num|Hemoglobin (g/dL)|12.0|16.0|13.5|17.5
+hematocrit|num|Hematocrit (%)|36.0|46.0|41.0|53.0
+erythrocytes|num|Erythrocytes (RBC) (million/μL)|4.1|5.1|4.5|5.9
+leukocytes|num|Leukocytes (WBC) (/μL)|4500|11000|4500|11000
+platelets|num|Platelets (/μL)|150000|450000|150000|450000
+neutrophils|num|Neutrophils (%)|50|70|50|70
+lymphocytes|num|Lymphocytes (%)|20|40|20|40
+monocytes|num|Monocytes (%)|2|8|2|8
+eosinophils|num|Eosinophils (%)|1|4|1|4
+basophils|num|Basophils (%)|0|1|0|1
+[Clinical Biochemistry]
+fasting_glucose|num|Fasting Glucose (mg/dL)|70|99|70|99
+urea|num|Urea (mg/dL)|15|40|15|40
+creatinine|num|Creatinine (mg/dL)|0.6|1.3|0.6|1.3
+uric_acid|num|Uric Acid (mg/dL)|2.4|6.0|3.4|7.0
+total_cholesterol|num|Total Cholesterol (mg/dL)|0|200|0|200
+triglycerides|num|Triglycerides (mg/dL)|0|150|0|150
+hdl|num|HDL Cholesterol (mg/dL)|40|9999|40|9999
+ldl|num|LDL Cholesterol (mg/dL)|0|100|0|100
+ast|num|AST (SGOT) (U/L)|10|40|10|40
+alt|num|ALT (SGPT) (U/L)|7|56|7|56
+alkaline_phosphatase|num|Alkaline Phosphatase (U/L)|44|147|44|147
+total_bilirubin|num|Total Bilirubin (mg/dL)|0.3|1.2|0.3|1.2
+total_proteins|num|Total Proteins (g/dL)|6.4|8.3|6.4|8.3
+albumin|num|Albumin (g/dL)|3.5|5.0|3.5|5.0
+[Immunology / Immunoserology]
+crp|num|C-Reactive Protein (CRP) (mg/L)|0|5|0|5
+rheumatoid_factor|num|Rheumatoid Factor (IU/mL)|0|14|0|14
+aso|num|ASO (Antistreptolysin O) (UI/mL)|0|200|0|200
+hiv|qual|HIV 1/2|Non-reactive|Non-reactive|Reactive
+hbsag|qual|HBsAg|Non-reactive|Non-reactive|Reactive
+antihcv|qual|Anti-HCV|Non-reactive|Non-reactive|Reactive
+vdrl|qual|VDRL|Non-reactive|Non-reactive|Reactive
+bhcg|num|β-HCG (Non-pregnant) (mUI/mL)|0|5|0|5
+ana|qual|ANA|Negative|Negative|Positive
+antidsdna|qual|Anti-dsDNA|Negative|Negative|Positive
+tsh|num|TSH (mUI/L)|0.4|4.0|0.4|4.0
+free_t4|num|Free T4 (ng/dL)|0.8|1.8|0.8|1.8`;
+
+    let labPanelConfig = {};
+
+    function parseDatabase() {
+        let lines = databaseString.split("\n");
+        let currentCat = "";
+        lines.forEach(line => {
+            line = line.trim();
+            if(!line) return;
+            if(line.startsWith("[")) {
+                currentCat = line.replace("[", "").replace("]", "");
+                labPanelConfig[currentCat] = [];
+            } else {
+                let parts = line.split("|");
+                if(parts[1] === "num") {
+                    labPanelConfig[currentCat].push({ id: parts[0], type: parts[1], name: parts[2], wMin: parseFloat(parts[3]), wMax: parseFloat(parts[4]), mMin: parseFloat(parts[5]), mMax: parseFloat(parts[6]) });
+                } else {
+                    labPanelConfig[currentCat].push({ id: parts[0], type: parts[1], name: parts[2], expected: parts[3], opts: ["-", parts[4], parts[5]] });
+                }
+            }
+        });
+    }
+
+    function getRangeText(p, gender) {
+        if(p.type !== "num") return "Reference: " + p.expected;
+        let min = gender === "man" ? p.mMin : p.wMin;
+        let max = gender === "man" ? p.mMax : p.wMax;
+        if(min === 0) return `Reference: < ${max}`;
+        if(max === 9999) return `Reference: > ${min}`;
+        return `Reference: ${min} - ${max}`;
+    }
+
+    function buildInterface() {
+        const container = document.getElementById("dynamicForm");
+        if (!container) return;
+        let html = "";
+        let gender = document.getElementById("gender").value;
+
+        for (const [cat, params] of Object.entries(labPanelConfig)) {
+            html += `<div class="category-title">${cat}</div>`;
+            params.forEach(p => {
+                if (p.type === "num") {
+                    html += `<div class="param-row">
+                        <div class="param-info"><div class="param-name">${p.name}</div><div class="param-range" id="lbl_${p.id}">${getRangeText(p, gender)}</div></div>
+                        <div class="param-input-container"><input type="text" id="input_${p.id}" placeholder="-"><span class="status-badge" id="badge_${p.id}"></span></div>
+                    </div>`;
+                } else {
+                    let optsHtml = p.opts.map(o => `<option value="${o}">${o}</option>`).join("");
+                    html += `<div class="param-row">
+                        <div class="param-info"><div class="param-name">${p.name}</div><div class="param-range">Reference: ${p.expected}</div></div>
+                        <div class="param-input-container"><select id="input_${p.id}">${optsHtml}</select><span class="status-badge" id="badge_${p.id}"></span></div>
+                    </div>`;
+                }
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    function handleGenderChange() {
+        let gender = document.getElementById("gender").value;
+        for (const [cat, params] of Object.entries(labPanelConfig)) {
+            params.forEach(p => {
+                if (p.type === "num") {
+                    let lbl = document.getElementById(`lbl_${p.id}`);
+                    if (lbl) lbl.innerHTML = getRangeText(p, gender);
+                }
+                let b = document.getElementById(`badge_${p.id}`);
+                if (b) b.style.display = "none";
+            });
+        }
+        document.getElementById("overallSummary").style.display = "none";
+        document.getElementById("aiReportBox").style.display = "none";
+    }
+
+    function evaluateAllValues() {
+        let gender = document.getElementById("gender").value;
+        let abnormal = 0, tested = 0;
+        let abnormalList = [];
+
+        for (const [cat, params] of Object.entries(labPanelConfig)) {
+            params.forEach(p => {
+                let inp = document.getElementById(`input_${p.id}`);
+                let bdg = document.getElementById(`badge_${p.id}`);
+                if (!inp || !bdg) return;
+                let valStr = inp.value.trim();
+                if (valStr === "" || valStr === "-") { bdg.style.display = "none"; return; }
+                tested++;
+
+                let isAbnormal = false;
+                if (p.type === "num") {
+                    // Strips periods/commas/spaces introduced during text scanning
+                    let cleanValStr = valStr.replace(/[\s,.]/g, "");
+                    let val = parseFloat(cleanValStr);
+                    
+                    if (isNaN(val)) val = parseFloat(valStr);
+
+                    let min = gender === "man" ? p.mMin : p.wMin;
+                    let max = gender === "man" ? p.mMax : p.wMax;
+                    if (val < min || val > max) isAbnormal = true;
+                } else {
+                    if (valStr !== p.expected) isAbnormal = true;
+                }
+
+                if (isAbnormal) {
+                    bdg.className = "status-badge abnormal-badge"; bdg.innerHTML = "Abnormal ⚠️"; abnormal++;
+                    abnormalList.push(`${p.name}: ${valStr}`);
+                } else {
+                    bdg.className = "status-badge normal-badge"; bdg.innerHTML = "Normal ✓";
+                }
+            });
+        }
+
+        let sum = document.getElementById("overallSummary");
+        let reportBox = document.getElementById("aiReportBox");
+        
+        if (tested === 0) {
+            sum.className = "summary-box abnormal-badge"; sum.innerHTML = "Please enter or select at least one laboratory metric value first."; sum.style.display = "block";
+            reportBox.style.display = "none";
+        } else if (abnormal > 0) {
+            sum.className = "summary-box abnormal-badge"; sum.innerHTML = `Analysis Complete: Detected ${abnormal} abnormal value(s).`; sum.style.display = "block";
+            consultarIA(abnormalList.join(", "), gender);
+        } else {
+            sum.className = "summary-box normal-badge"; sum.innerHTML = "Analysis Complete: All evaluated parameters are within normal reference ranges! ✓"; sum.style.display = "block";
+            reportBox.style.display = "none";
+        }
+    }
+
+    async function consultarIA(valoresAnormales, genero) {
+        let reportBox = document.getElementById("aiReportBox");
+        let contentBox = document.getElementById("aiContent");
+        
+        contentBox.innerHTML = "⏳ Processing full lab report parameters with Gemini Engine...";
+        reportBox.style.display = "block";
+        
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+        const prompt = `Actúa como un asistente experto de cribado en patología de laboratorio clínico. El paciente es de género [${genero}]. Tiene los siguientes valores anormales de laboratorio: [${valoresAnormales}]. 
+        Menciona en formato de lista corta en español de forma comprensible para el usuario:
+        1. Las 2 o 3 correlaciones clínicas o síndromes más comunes asociados a estos desajustes específicos.
+        2. Qué otros estudios complementarios comunes se suelen sugerir en medicina interna para confirmar.
+        Termina SIEMPRE con este aviso exacto resaltado al final: 'AVISO: Este análisis es puramente orientativo y automatizado. No sustituye bajo ninguna circunstancia el criterio ni la consulta presencial con un médico colegiado.'`;
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await response.json();
+            
+            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                contentBox.innerHTML = data.candidates[0].content.parts[0].text;
+            } else if (data.error) {
+                contentBox.innerHTML = `⚠️ API Error: ${data.error.message}`;
+            } else {
+                contentBox.innerHTML = "⚠️ Error: Unknown response structure. Check API key status.";
+            }
+        } catch (error) {
+            contentBox.innerHTML = "⚠️ Network error or security block (CORS/Privacy Extension).";
+            console.error(error);
+        }
+    }
+
+    async function processLabDocument() {
+        const fileInput = document.getElementById("labDocumentInput");
+        const statusBox = document.getElementById("uploadStatus");
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert("Please choose an image or PDF file first.");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        statusBox.style.display = "block";
+        statusBox.innerHTML = "⏳ Reading file data and encoding to base64 stream...";
+
+        const reader = new FileReader();
+        reader.onloadend = async function() {
+            const base64Data = reader.result.split(",")[1];
+            statusBox.innerHTML = "🚀 Extracting data parameters via Gemini Vision OCR...";
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+            
+            let structuralKeys = [];
+            for (const [cat, params] of Object.entries(labPanelConfig)) {
+                params.forEach(p => structuralKeys.push(`"${p.id}": [value or text or "-"]`));
+            }
+
+            const prompt = `You are an OCR lab data retrieval tool. Scan the attached laboratory report document and pull any matching information into a clean JSON structure. 
+            Map your extracted parameters perfectly into this JSON format case-sensitive:
+            {
+               ${structuralKeys.join(",\n               ")}
+            }
+            Rules:
+            1. Extract numeric entries directly as clean numbers or decimal strings without units (e.g. "14.2").
+            2. Match values like "Reactive", "Non-reactive", "Positive", or "Negative" exactly to the options for qualitative keys.
+            3. If a value is missing or unreadable on the report, leave it as "-".
+            4. Return ONLY raw JSON text. No markdown wraps, no extra text explanation.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { inlineData: { mimeType: file.type, data: base64Data } },
+                                { text: prompt }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                statusBox.style.display = "none";
+
+                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    let rawText = data.candidates[0].content.parts[0].text.trim();
+                    if (rawText.startsWith("```")) {
+                        rawText = rawText.replace(/```json|```/g, "").trim();
+                    }
+
+                    const extractedData = JSON.parse(rawText);
+                    
+                    let matchCount = 0;
+                    for (const [key, value] of Object.entries(extractedData)) {
+                        let el = document.getElementById(`input_${key}`);
+                        if (el && value !== "-") {
+                            el.value = value;
+                            matchCount++;
+                        }
+                    }
+                    alert(`Extraction Complete! Automatically filled ${matchCount} parameters.`);
+                } else {
+                    alert("Extraction returned empty results. Ensure text is clearly legible.");
+                }
+
+            } catch (e) {
+                statusBox.style.display = "none";
+                alert("Error calling extraction API: " + e.message);
+                console.error(e);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearAllFields() { 
+        buildInterface(); 
+        document.getElementById("overallSummary").style.display = "none"; 
+        document.getElementById("aiReportBox").style.display = "none"; 
+        document.getElementById("labDocumentInput").value = ""; 
+    }
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        parseDatabase();
+        buildInterface();
+    });
+</script>
+</body>
+</html>
