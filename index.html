@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IntelliLab AI</title>
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
 
-<link rel="icon" type="image/png" href="logo.png">
     <style>
         :root {
             --bg-color: #0f1015;
@@ -97,7 +97,6 @@
             background: rgba(255, 255, 255, 0.03);
         }
 
-        /* Colores temáticos del menú */
         .card-inmuno:hover { border-color: #4a90e2; }
         .card-inmuno .icon-box { color: #4a90e2; }
         
@@ -187,7 +186,7 @@
         .nav-item.active {
             background: #1e2230;
             color: white;
-            border-color: #ff4a4a;
+            border-color: #8a2be2;
         }
 
         .panel {
@@ -206,13 +205,30 @@
             margin-bottom: 15px;
         }
 
-        select {
+        .profile-row {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .profile-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select, input[type="number"] {
             background-color: #0f1015;
             color: white;
             border: 1px solid var(--border-color);
             padding: 8px 12px;
             border-radius: 4px;
-            width: 160px;
+            width: 140px;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 90px;
         }
 
         .upload-wrapper {
@@ -236,6 +252,12 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-extract:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .action-buttons {
@@ -253,6 +275,12 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-analyze:disabled {
+            background-color: #444;
+            cursor: not-allowed;
         }
 
         .btn-clear {
@@ -262,6 +290,23 @@
             padding: 12px 30px;
             border-radius: 6px;
             cursor: pointer;
+        }
+
+        #ia-response-box {
+            display: none;
+            background-color: #1e1f29;
+            border: 1px solid #8a2be2;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+        }
+
+        #ia-output-text {
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #e0e0e0;
+            font-size: 14.5px;
         }
 
         footer {
@@ -276,31 +321,32 @@
 
     <div class="container">
         
+        <!-- MENÚ PRINCIPAL -->
         <div id="start-menu">
             <div class="menu-logo">🧬</div>
             <div class="menu-title">IntelliLab AI</div>
             <div class="menu-subtitle">Clinical Laboratory Verification & Analysis Platform</div>
             
             <div class="main-grid">
-                <div class="menu-card card-hemato" onclick="abrirLaboratorio('Hematología')">
+                <div class="menu-card card-hemato" onclick="abrirLaboratorio('hemato')">
                     <div class="icon-box">🩸</div>
                     <h3>Hematología</h3>
                     <p>Análisis de elementos formes sanguíneos, recuento globular y constantes corpusculares.</p>
                 </div>
                 
-                <div class="menu-card card-bioquim" onclick="abrirLaboratorio('Bioquímica Clínica')">
+                <div class="menu-card card-bioquim" onclick="abrirLaboratorio('bioquim')">
                     <div class="icon-box">🧪</div>
                     <h3>Bioquímica Clínica</h3>
                     <p>Evaluación metabólica, perfiles lipídicos, sustratos y enzimas séricas.</p>
                 </div>
                 
-                <div class="menu-card card-inmuno" onclick="abrirLaboratorio('Inmunología')">
+                <div class="menu-card card-inmuno" onclick="abrirLaboratorio('inmuno')">
                     <div class="icon-box">🧬</div>
                     <h3>Inmunología</h3>
                     <p>Pruebas serológicas, marcadores reactivos y anticuerpos específicos.</p>
                 </div>
                 
-                <div class="menu-card card-general" onclick="abrirLaboratorio('General')">
+                <div class="menu-card card-general" onclick="abrirLaboratorio('general')">
                     <div class="icon-box">🔬</div>
                     <h3>Vista General</h3>
                     <p>Acceso consolidado global para la visualización integral de los 39 parámetros.</p>
@@ -308,14 +354,15 @@
             </div>
         </div>
 
+        <!-- ESPACIO DE TRABAJO EN EL LABORATORIO -->
         <div id="lab-workspace">
             <button class="btn-back" onclick="volverAlMenu()">← Volver al Menú Principal</button>
 
             <div class="top-navbar">
-                <div class="nav-item" id="nav-Hematología" onclick="cambiarModulo('Hematología')">Hematología</div>
-                <div class="nav-item" id="nav-Bioquímica" onclick="cambiarModulo('Bioquímica Clínica')">Bioquímica</div>
-                <div class="nav-item" id="nav-Inmunología" onclick="cambiarModulo('Inmunología')">Inmunología</div>
-                <div class="nav-item" id="nav-General" onclick="cambiarModulo('General')">Vista General</div>
+                <div class="nav-item" id="nav-hemato" onclick="cambiarModulo('hemato')">Hematología</div>
+                <div class="nav-item" id="nav-bioquim" onclick="cambiarModulo('bioquim')">Bioquímica</div>
+                <div class="nav-item" id="nav-inmuno" onclick="cambiarModulo('inmuno')">Inmunología</div>
+                <div class="nav-item" id="nav-general" onclick="cambiarModulo('general')">Vista General</div>
             </div>
 
             <div class="header-section">
@@ -325,20 +372,29 @@
 
             <div class="panel">
                 <div class="panel-title">👤 Patient Biological Profile</div>
-                <label for="gender">Biological Gender: </label>
-                <select id="gender">
-                    <option value="Man">Man</option>
-                    <option value="Woman">Woman</option>
-                </select>
+                <div class="profile-row">
+                    <div class="profile-group">
+                        <label for="gender">Biological Gender: </label>
+                        <select id="gender">
+                            <option value="Man">Man</option>
+                            <option value="Woman">Woman</option>
+                        </select>
+                    </div>
+                    <div class="profile-group">
+                        <label for="age-input">Exact Age (Years): </label>
+                        <input type="number" id="age-input" min="0" max="120" placeholder="e.g. 30" oninput="actualizarRangosPorEdad()">
+                        <span style="font-size: 12px; color: var(--text-muted);">(Blank = Adult)</span>
+                    </div>
+                </div>
             </div>
 
             <div class="panel">
                 <div class="panel-title">📋 Autofill via Lab Document (Image/PDF)</div>
                 <div class="upload-wrapper">
                     <div class="file-input-container">
-                        <input type="file" id="lab-file">
+                        <input type="file" id="lab-file" accept="image/*,application/pdf">
                     </div>
-                    <button class="btn-extract">Extract Data</button>
+                    <button class="btn-extract" onclick="ejecutarOCRConGemini()">Extract Data</button>
                 </div>
             </div>
 
@@ -347,6 +403,13 @@
             <div class="action-buttons">
                 <button class="btn-analyze" onclick="analizarResultados()">Analyze All Results</button>
                 <button class="btn-clear" onclick="limpiarCampos()">Clear All Fields</button>
+            </div>
+
+            <div id="ia-response-box">
+                <h3 style="color: #8a2be2; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+                    🤖 Análisis Clínico Inteligente (Gemini)
+                </h3>
+                <div id="ia-output-text">Procesando análisis...</div>
             </div>
         </div>
 
@@ -357,129 +420,150 @@
     </footer>
 
     <script>
-        let currentModule = "Hematología"; 
+        const GEMINI_API_KEY = "AQ.Ab8RN6JlFxpQ3LlkpnD_Awi2B4wjrBLlhU6TEw3Hx3MHTWEEFA"; 
+
+        let currentModule = "hemato"; 
         let database = []; 
 
         function parseDatabase() {
             database = [
                 {
+                    id: "hemato",
                     modulo: "Hematología",
                     parametros: [
-                        { nombre: "Hemoglobin (g/dL)", referencia: "13.5 - 17.5" },
-                        { nombre: "Hematocrit (%)", referencia: "41 - 53" },
-                        { nombre: "Erythrocytes (RBC) (million/µL)", referencia: "4.5 - 5.9" },
-                        { nombre: "Leukocytes (WBC) (/µL)", referencia: "4500 - 11000" },
-                        { nombre: "Platelets (/µL)", referencia: "150000 - 450000" },
-                        { nombre: "Mean Corpuscular Volume (MCV) (fL)", referencia: "80 - 100" },
-                        { nombre: "MCH (pg)", referencia: "27 - 33" },
-                        { nombre: "MCHC (g/dL)", referencia: "32 - 36" },
-                        { nombre: "RDW (%)", referencia: "11.5 - 14.5" },
-                        { nombre: "Neutrophils (%)", referencia: "40 - 70" },
-                        { nombre: "Lymphocytes (%)", referencia: "20 - 40" },
-                        { nombre: "Monocytes (%)", referencia: "2 - 8" },
-                        { nombre: "Eosinophils (%)", referencia: "1 - 4" },
-                        { nombre: "Basophils (%)", referencia: "< 1" }
+                        { nombre: "Hemoglobin (g/dL)", refAdulto: "13.5 - 17.5", refNino: "11.5 - 15.0" },
+                        { nombre: "Hematocrit (%)", refAdulto: "41 - 53", refNino: "35 - 45" },
+                        { nombre: "Erythrocytes (RBC) (million/µL)", refAdulto: "4.5 - 5.9", refNino: "4.0 - 5.2" },
+                        { nombre: "Leukocytes (WBC) (/µL)", refAdulto: "4500 - 11000", refNino: "5000 - 14500" },
+                        { nombre: "Platelets (/µL)", refAdulto: "150000 - 450000", refNino: "200000 - 475000" },
+                        { nombre: "Mean Corpuscular Volume (MCV) (fL)", refAdulto: "80 - 100", refNino: "75 - 95" },
+                        { nombre: "MCH (pg)", refAdulto: "27 - 33", refNino: "25 - 31" },
+                        { nombre: "MCHC (g/dL)", refAdulto: "32 - 36", refNino: "32 - 36" },
+                        { nombre: "RDW (%)", refAdulto: "11.5 - 14.5", refNino: "12.0 - 15.0" },
+                        { nombre: "Neutrophils (%)", refAdulto: "40 - 70", refNino: "30 - 60" },
+                        { nombre: "Lymphocytes (%)", refAdulto: "20 - 40", refNino: "40 - 70" },
+                        { nombre: "Monocytes (%)", refAdulto: "2 - 8", refNino: "4 - 10" },
+                        { nombre: "Eosinophils (%)", refAdulto: "1 - 4", refNino: "1 - 5" },
+                        { nombre: "Basophils (%)", refAdulto: "< 1", refNino: "< 1" }
                     ]
                 },
                 {
+                    id: "bioquim",
                     modulo: "Bioquímica Clínica",
                     parametros: [
-                        { nombre: "Fasting Glucose (mg/dL)", referencia: "70 - 99" },
-                        { nombre: "Urea (mg/dL)", referencia: "10 - 50" },
-                        { nombre: "Creatinine (mg/dL)", referencia: "0.6 - 1.1" },
-                        { nombre: "Uric Acid (mg/dL)", referencia: "3.5 - 7.2" },
-                        { nombre: "Total Cholesterol (mg/dL)", referencia: "< 200" },
-                        { nombre: "Triglycerides (mg/dL)", referencia: "< 150" },
-                        { nombre: "HDL Cholesterol (mg/dL)", referencia: "> 40" },
-                        { nombre: "LDL Cholesterol (mg/dL)", referencia: "< 100" },
-                        { nombre: "SGOT / AST (U/L)", referencia: "< 40" },
-                        { nombre: "SGPT / ALT (U/L)", referencia: "< 41" },
-                        { nombre: "Alkaline Phosphatase (U/L)", referencia: "40 - 129" },
-                        { nombre: "Total Bilirubin (mg/dL)", referencia: "0.2 - 1.2" }
+                        { nombre: "Fasting Glucose (mg/dL)", refAdulto: "70 - 99", refNino: "60 - 99" },
+                        { nombre: "Urea (mg/dL)", refAdulto: "10 - 50", refNino: "5 - 40" },
+                        { nombre: "Creatinine (mg/dL)", refAdulto: "0.6 - 1.1", refNino: "0.3 - 0.7" },
+                        { nombre: "Uric Acid (mg/dL)", refAdulto: "3.5 - 7.2", refNino: "2.0 - 5.5" },
+                        { nombre: "Total Cholesterol (mg/dL)", refAdulto: "< 200", refNino: "< 170" },
+                        { nombre: "Triglycerides (mg/dL)", refAdulto: "< 150", refNino: "< 90" },
+                        { nombre: "HDL Cholesterol (mg/dL)", refAdulto: "> 40", refNino: "> 45" },
+                        { nombre: "LDL Cholesterol (mg/dL)", refAdulto: "< 100", refNino: "< 110" },
+                        { nombre: "SGOT / AST (U/L)", refAdulto: "< 40", refNino: "< 50" },
+                        { nombre: "SGPT / ALT (U/L)", refAdulto: "< 41", refNino: "< 45" },
+                        { nombre: "Alkaline Phosphatase (U/L)", refAdulto: "40 - 129", refNino: "130 - 560" },
+                        { nombre: "Total Bilirubin (mg/dL)", refAdulto: "0.2 - 1.2", refNino: "0.2 - 1.0" }
                     ]
                 },
                 {
+                    id: "inmuno",
                     modulo: "Inmunología",
                     parametros: [
-                        { nombre: "C-Reactive Protein (CRP) (mg/L)", referencia: "< 5.0" },
-                        { nombre: "Rheumatoid Factor (RF) (IU/mL)", referencia: "< 14" },
-                        { nombre: "Antistreptolysin O (ASO) (IU/mL)", referencia: "< 200" },
-                        { nombre: "VDRL / RPR", referencia: "Non-reactive" },
-                        { nombre: "HIV 1/2 Ag/Ab Combo", referencia: "Non-reactive" },
-                        { nombre: "HBsAg (Hepatitis B)", referencia: "Non-reactive" },
-                        { nombre: "Anti-HCV (Hepatitis C)", referencia: "Non-reactive" }
+                        { nombre: "C-Reactive Protein (CRP) (mg/L)", refAdulto: "< 5.0", refNino: "< 3.0" },
+                        { nombre: "Rheumatoid Factor (RF) (IU/mL)", refAdulto: "< 14", refNino: "< 14" },
+                        { nombre: "Antistreptolysin O (ASO) (IU/mL)", refAdulto: "< 200", refNino: "< 150" },
+                        { nombre: "VDRL / RPR", refAdulto: "Non-reactive", refNino: "Non-reactive" },
+                        { nombre: "HIV 1/2 Ag/Ab Combo", refAdulto: "Non-reactive", refNino: "Non-reactive" },
+                        { nombre: "HBsAg (Hepatitis B)", refAdulto: "Non-reactive", refNino: "Non-reactive" },
+                        { nombre: "Anti-HCV (Hepatitis C)", refAdulto: "Non-reactive", refNino: "Non-reactive" }
                     ]
                 },
                 {
-                    modulo: "General",
+                    id: "general",
+                    modulo: "Vista General",
                     parametros: [
-                        { nombre: "Total Proteins (g/dL)", referencia: "6.4 - 8.3" },
-                        { nombre: "Albumin (g/dL)", referencia: "3.5 - 5.0" },
-                        { nombre: "Globulin (g/dL)", referencia: "2.0 - 3.5" },
-                        { nombre: "A/G Ratio", referencia: "1.2 - 2.2" },
-                        { nombre: "Calcium (mg/dL)", referencia: "8.8 - 10.2" },
-                        { nombre: "Sodium (mEq/L)", referencia: "136 - 145" }
+                        { nombre: "Total Proteins (g/dL)", refAdulto: "6.4 - 8.3", refNino: "6.0 - 8.0" },
+                        { nombre: "Albumin (g/dL)", refAdulto: "3.5 - 5.0", refNino: "3.8 - 5.4" },
+                        { nombre: "Globulin (g/dL)", refAdulto: "2.0 - 3.5", refNino: "1.5 - 3.0" },
+                        { nombre: "A/G Ratio", refAdulto: "1.2 - 2.2", refNino: "1.2 - 2.2" },
+                        { nombre: "Calcium (mg/dL)", refAdulto: "8.8 - 10.2", refNino: "8.8 - 10.8" },
+                        { nombre: "Sodium (mEq/L)", refAdulto: "136 - 145", refNino: "135 - 145" }
                     ]
                 }
             ];
         }
 
-        function abrirLaboratorio(moduloSeleccionado) {
+        function abrirLaboratorio(moduloId) {
+            parseDatabase(); 
             document.getElementById("start-menu").style.display = "none";
             document.getElementById("lab-workspace").style.display = "block";
-            cambiarModulo(moduloSeleccionado);
+            cambiarModulo(moduloId);
         }
 
         function volverAlMenu() {
             document.getElementById("lab-workspace").style.display = "none";
             document.getElementById("start-menu").style.display = "block";
+            document.getElementById("ia-response-box").style.display = "none";
         }
 
-        function cambiarModulo(nuevoModulo) {
-            currentModule = nuevoModulo;
+        function cambiarModulo(moduloId) {
+            currentModule = moduloId;
+            const seccionEncontrada = database.find(d => d.id === moduloId);
+            const nombreTitulo = seccionEncontrada ? seccionEncontrada.modulo : "Laboratorio";
+            document.getElementById("titulo-laboratorio").innerText = `🔬 IntelliLab AI - Laboratorio de ${nombreTitulo}`;
             
-            document.getElementById("titulo-laboratorio").innerText = `🔬 IntelliLab AI - Laboratorio de ${nuevoModulo}`;
-
             document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-            
-            const palabraClave = nuevoModulo.split(" ")[0]; 
-            const itemNav = document.getElementById(`nav-${palabraClave}`);
+            const itemNav = document.getElementById(`nav-${moduloId}`);
             if (itemNav) itemNav.classList.add("active");
 
             buildInterface();
         }
 
+        function getEdadActual() {
+            const edadInput = document.getElementById("age-input").value;
+            // Si está vacío, de forma automática asume un adulto estándar de 30 años
+            return edadInput === "" ? 30 : parseInt(edadInput, 10);
+        }
+
         function buildInterface() {
             const container = document.getElementById("contenedor-tablas");
             if (!container) return;
-            
             container.innerHTML = ""; 
 
-            database.forEach(seccion => {
-                const moduloDB = seccion.modulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const moduloActivo = currentModule.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const edad = getEdadActual();
+            const esNino = edad < 18; 
 
-                if (moduloActivo === "general" || moduloDB.includes(moduloActivo) || moduloActivo.includes(moduloDB)) {
-                    
+            database.forEach(seccion => {
+                if (currentModule === "general" || seccion.id === currentModule) {
                     const divBloque = document.createElement("div");
                     divBloque.className = "seccion-laboratorio";
                     divBloque.style.marginBottom = "30px";
                     
                     let htmlContenido = `
                         <div class="modulo-header" style="background: linear-gradient(90deg, #7b2cbf, #3a0ca3); padding: 12px; color: white; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
-                            ${seccion.modulo}
+                            ${seccion.modulo} ${esNino ? '' : ''}
                         </div>
                     `;
                     
                     seccion.parametros.forEach(param => {
+                        // Selección dinámica de la referencia según la edad
+                        const referenciaCorrecta = esNino ? param.refNino : param.refAdulto;
+
                         htmlContenido += `
                             <div class="parametro-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
                                 <div class="parametro-info" style="flex: 1;">
                                     <div class="parametro-nombre" style="font-weight: 500; color: #ffffff; font-size: 14px;">${param.nombre}</div>
-                                    <div class="parametro-referencia" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Reference: ${param.referencia}</div>
+                                    <div class="parametro-referencia" id="ref-${param.nombre.replace(/[^a-zA-Z0-9]/g, "")}" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Reference: ${referenciaCorrecta}</div>
                                 </div>
-                                <div class="parametro-input-wrapper" style="width: 150px;">
-                                    <input type="text" class="parametro-input" data-parametro="${param.nombre}" placeholder="-" style="width: 100%; background: #0f1015; border: 1px solid var(--border-color); color: white; padding: 8px; border-radius: 4px; text-align: center; box-sizing: border-box;">
+                                <div class="parametro-input-wrapper" style="width: 200px; display: flex; align-items: center; gap: 10px;">
+                                    <input type="text" class="parametro-input" 
+                                           data-parametro="${param.nombre}" 
+                                           data-ref-adulto="${param.refAdulto}"
+                                           data-ref-nino="${param.refNino}"
+                                           oninput="validarRango(this)"
+                                           placeholder="-" 
+                                           style="width: 120px; background: #0f1015; border: 1px solid var(--border-color); color: white; padding: 8px; border-radius: 4px; text-align: center; box-sizing: border-box;">
+                                    <div class="status-icon" style="width: 25px; font-size: 16px; text-align: center;"></div>
                                 </div>
                             </div>
                         `;
@@ -491,7 +575,177 @@
             });
         }
 
-        function analizarResultados() {
+        function actualizarRangosPorEdad() {
+            const edad = getEdadActual();
+            const esNino = edad < 18;
+
+            document.querySelectorAll(".parametro-input").forEach(input => {
+                const refCorrecta = esNino ? input.dataset.refNino : input.dataset.refAdulto;
+                const idRef = "ref-" + input.dataset.parametro.replace(/[^a-zA-Z0-9]/g, "");
+                const elementoRef = document.getElementById(idRef);
+                
+                if (elementoRef) {
+                    elementoRef.innerText = `Reference: ${refCorrecta}`;
+                }
+                // Revalida de inmediato el valor que ya estaba escrito con el nuevo límite de edad
+                validarRango(input);
+            });
+        }
+
+        function validarRango(input) {
+            const valorStr = input.value.trim();
+            const edad = getEdadActual();
+            const referencia = edad < 18 ? input.dataset.refNino : input.dataset.refAdulto;
+            const iconContainer = input.nextElementSibling; 
+
+            if (valorStr === "") {
+                iconContainer.innerText = "";
+                input.style.borderColor = "var(--border-color)";
+                return;
+            }
+
+            if (referencia.includes("Non-reactive")) {
+                if (valorStr.toLowerCase() !== "non-reactive" && valorStr.toLowerCase() !== "normal" && valorStr.toLowerCase() !== "negativo" && valorStr.toLowerCase() !== "negative") {
+                    iconContainer.innerText = "⚠️";
+                    input.style.borderColor = "#ff4a4a";
+                } else {
+                    iconContainer.innerText = "✅";
+                    input.style.borderColor = "#2ecc71";
+                }
+                return;
+            }
+
+            const valorNum = parseFloat(valorStr.replace(',', '.'));
+            if (isNaN(valorNum)) {
+                iconContainer.innerText = "❌";
+                return;
+            }
+
+            let eAnormal = false;
+
+            if (referencia.includes("-")) {
+                const partes = referencia.split("-");
+                const min = parseFloat(partes[0]);
+                const max = parseFloat(partes[1]);
+                if (valorNum < min || valorNum > max) eAnormal = true;
+            } else if (referencia.includes("<")) {
+                const max = parseFloat(referencia.replace("<", "").trim());
+                if (valorNum >= max) eAnormal = true;
+            } else if (referencia.includes(">")) {
+                const min = parseFloat(referencia.replace(">", "").trim());
+                if (valorNum <= min) eAnormal = true;
+            }
+
+            if (eAnormal) {
+                iconContainer.innerText = "⚠️";
+                input.style.borderColor = "#ff4a4a";
+            } else {
+                iconContainer.innerText = "✅";
+                input.style.borderColor = "#2ecc71";
+            }
+        }
+
+        /* =========================================================
+           MOTOR OCR INTELIGENTE Y BLINDADO: GEMINI 2.5 FLASH
+           ========================================================= */
+        async function ejecutarOCRConGemini() {
+            const fileInput = document.getElementById("lab-file");
+            const file = fileInput.files[0];
+            const btn = document.querySelector(".btn-extract");
+
+            if (!file) {
+                alert("Por favor, selecciona una imagen o un PDF primero.");
+                return;
+            }
+
+            if (GEMINI_API_KEY === "TU_GEMINI_API_KEY_AQUÍ") {
+                alert("Por favor, configura tu API Key de Gemini en el código.");
+                return;
+            }
+
+            btn.innerText = "IA Analizando Documento... ⏳";
+            btn.disabled = true;
+
+            try {
+                const base64Data = await convertFileToBase64(file);
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+                let parametrosEsperados = [];
+                document.querySelectorAll(".parametro-input").forEach(i => {
+                    parametrosEsperados.push(i.dataset.parametro);
+                });
+
+                const promptMapeo = `
+                Analiza de forma ultra precisa este documento de laboratorio clínico. Su función es extraer los resultados.
+                
+                Devuélveme estrictamente un objeto JSON plano cuyas claves coincidan de manera idéntica o lo más cercana posible con estos parámetros requeridos:
+                ${JSON.stringify(parametrosEsperados)}
+
+                Ejemplo de salida esperada:
+                {"Hemoglobin (g/dL)": "14.2", "Platelets (/µL)": "250000", "VDRL / RPR": "Non-reactive"}
+                
+                Si un parámetro no aparece en el documento adjunto, simplemente omítelo en el JSON resultante.
+                `;
+
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: promptMapeo },
+                            { inlineData: { mimeType: file.type, data: base64Data } }
+                        ]
+                    }]
+                };
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`Status error: ${response.status}`);
+
+                const json = await response.json();
+                let textoRespuesta = json.candidates[0].content.parts[0].text.trim();
+
+                const jsonMatch = textoRespuesta.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("La IA no devolvió una estructura JSON analizable.");
+
+                const datosExtraidos = JSON.parse(jsonMatch[0]);
+                
+                Object.keys(datosExtraidos).forEach(key => {
+                    const input = Array.from(document.querySelectorAll(".parametro-input"))
+                                       .find(i => i.dataset.parametro.toLowerCase().trim() === key.toLowerCase().trim() || 
+                                                  i.dataset.parametro.toLowerCase().includes(key.toLowerCase().split('(')[0].trim()));
+                    if (input) {
+                        input.value = datosExtraidos[key];
+                        validarRango(input);
+                    }
+                });
+
+                alert("¡Extracción de datos inteligente completada con éxito!");
+
+            } catch (error) {
+                console.error("Error en OCR de Gemini:", error);
+                alert("Error crítico al procesar el archivo. Asegúrate de usar una clave API válida.");
+            } finally {
+                btn.innerText = "Extract Data";
+                btn.disabled = false;
+            }
+        }
+
+        function convertFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        /* =========================================================
+           ANÁLISIS CLÍNICO E INFORME COMPLEMENTARIO INTERNO
+           ========================================================= */
+        async function analizarResultados() {
             let valoresIngresados = {};
             document.querySelectorAll(".parametro-input").forEach(input => {
                 if (input.value.trim() !== "") {
@@ -499,15 +753,81 @@
                 }
             });
 
-            const userInput = JSON.stringify(valoresIngresados);
-            const promptFinal = `[Contexto: Actúa como un experto en el área de ${currentModule}]. Datos clínicos del paciente: ${userInput}`;
+            if (Object.keys(valoresIngresados).length === 0) {
+                alert("Por favor, introduce o extrae al menos un resultado clínico para analizar.");
+                return;
+            }
+
+            const responseBox = document.getElementById("ia-response-box");
+            const outputText = document.getElementById("ia-output-text");
+            const btnAnalizar = document.querySelector(".btn-analyze");
             
-            console.log("Prompt final enviado:", promptFinal);
-            alert("¡Estructura analizada! Prompt generado correctamente en Consola.");
+            responseBox.style.display = "block";
+            outputText.innerHTML = "Generando informe clínico con Gemini... por favor, espera. ⏳";
+            btnAnalizar.disabled = true;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const moduloActualDB = database.find(d => d.id === currentModule);
+            const nombreModuloLegible = moduloActualDB ? moduloActualDB.modulo : "General";
+            
+            const generoPaciente = document.getElementById("gender").value;
+            const edadExacta = getEdadActual();
+            const esNino = edadExacta < 18;
+            const datosEstructurados = JSON.stringify(valoresIngresados, null, 2);
+            
+            const promptMedico = `
+            Actúa como un experto en Patología Clínica, Pediatría y Medicina Interna. 
+            Analiza los siguientes resultados del módulo de [${nombreModuloLegible}] para un paciente de sexo biológico [${generoPaciente}] con una EDAD EXACTA de [${edadExacta} años].
+            
+            IMPORTANTE: Dado que el paciente tiene ${edadExacta} años, clasifícalo estrictamente como un paciente ${esNino ? 'PEDIÁTRICO (NIÑO)' : 'ADULTO'} y evalúa las desviaciones según los límites biológicos para su edad exacta.
+            
+            Resultados entregados:
+            ${datosEstructurados}
+            
+            Por favor, genera un informe estructurado que incluya estrictamente:
+            1. **Evaluación de Alertas**: Identifica qué valores están fuera de rango (altos o bajos) y su significado clínico inmediato adaptado para su edad de ${edadExacta} años.
+            2. **Correlación Fisiopatológica**: Si hay múltiples valores alterados, explica cómo se relacionan entre sí.
+            3. **Sugerencias Complementarias**: Qué otras pruebas de laboratorio o de imagenología podrían recomendarse para confirmar un diagnóstico.
+            4. **Nota de Descargo**: Un mensaje recordando que esto es un soporte de IA y debe ser validado por un profesional.
+            
+            Usa un tono formal, técnico y estructurado con saltos de línea claros.
+            `;
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptMedico }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`Error en la API: ${response.status}`);
+
+                const json = await response.json();
+                let textoRespuesta = json.candidates[0].content.parts[0].text;
+
+                textoRespuesta = textoRespuesta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                outputText.innerHTML = textoRespuesta;
+
+            } catch (error) {
+                console.error("Error al conectar con Gemini:", error);
+                outputText.innerHTML = "❌ Error al procesar el análisis clínico. Verifica tu conexión o revisa tu API Key.";
+            } finally {
+                btnAnalizar.disabled = false;
+            }
         }
 
         function limpiarCampos() {
-            document.querySelectorAll(".parametro-input").forEach(input => input.value = "");
+            document.querySelectorAll(".parametro-input").forEach(input => {
+                input.value = "";
+            });
+            document.getElementById("lab-file").value = "";
+            document.getElementById("gender").value = "Man";
+            document.getElementById("age-input").value = "";
+            actualizarRangosPorEdad();
+            document.getElementById("ia-response-box").style.display = "none";
         }
 
         document.addEventListener("DOMContentLoaded", () => {
